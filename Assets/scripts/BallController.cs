@@ -17,7 +17,7 @@ public class BallController : MonoBehaviour
     }
     
     void Update() {
-        Debug.Log(transform.position);
+        //Debug.Log(transform.position);
     }
 
     private IEnumerator DestroyBall()

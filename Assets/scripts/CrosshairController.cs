@@ -19,8 +19,13 @@ public class NewBehaviourScript : MonoBehaviour
     private Vector3 boundingBoxMin;      // Min bounds of the bounding box.
     private Vector3 boundingBoxMax;      // Max bounds of the bounding box.
 
+    private  HealthBar hb; 
+
+    private bool playerIsInside = false;
+
     void Start()
     {
+        hb = GameObject.FindGameObjectWithTag("healthmanager").GetComponent<HealthBar>(); 
         // Get the bounds of the bounding box object
         Renderer renderer = boundingBox.GetComponent<Renderer>();
         boundingBoxMin = renderer.bounds.min;
@@ -97,14 +102,14 @@ IEnumerator MoveCrosshair()
     {
     Debug.Log("launch ball");
     soundManager.PlayWhooshSound();
-    Vector3 spawnPoint = new Vector3(finalPosition.x - 1f, finalPosition.y - 1f, -1);
+    Vector3 spawnPoint = new Vector3(finalPosition.x - 1f, finalPosition.y - 1f, 1);
 
     // Instantiate the ball at the spawnPoint position
     GameObject ball = Instantiate(ballPrefab, spawnPoint, Quaternion.identity);
     
     // Set the target position in the ball's controller
     // Assign the target position
-    Debug.Log(finalPosition);
+    //Debug.Log(finalPosition);
     
     // Calculate the direction vector from the spawn position towards the crosshair (finalPosition)
     Vector3 direction = (finalPosition - spawnPoint).normalized;
@@ -116,20 +121,56 @@ IEnumerator MoveCrosshair()
     rb.velocity = direction * ballSpeed*5; // Velocity for X, Y, and Z axes
     }
 
-   void OnTriggerEnter(Collider other)
-{
-    Debug.Log("Enter");
-    // soundManager.PlayPumpSound();
-    // Check if the ball has collided with the crosshair trigger
-    // Ensure that 'other' has a Rigidbody component
-    Rigidbody rb = other.GetComponent<Rigidbody>();
-    if (rb != null)
+//    void OnTriggerEnter(Collider other)
+//     {
+//         // soundManager.PlayPumpSound();
+//         // Check if the ball has collided with the crosshair trigger
+//         // Ensure that 'other' has a Rigidbody component
+//         Rigidbody rb = other.GetComponent<Rigidbody>();
+//         if (other.gameObject.tag == "ball")
+//         {
+//             Debug.Log("missed ball");
+//             // Stop the ball's movement
+//             rb.velocity = Vector3.zero; // Set the velocity to zero
+//             cameraShake.Shake(shakeDuration, shakeMagnitude);
+//             hb.LoseLife();
+//             // rb.isKinematic = true; // Optionally make it kinematic
+//         }
+//     }
+
+    void OnTriggerEnter(Collider other)
     {
-        // Stop the ball's movement
-        rb.velocity = Vector3.zero; // Set the velocity to zero
-        cameraShake.Shake(shakeDuration, shakeMagnitude);
-        // rb.isKinematic = true; // Optionally make it kinematic
+        if (other.gameObject.CompareTag("Player"))
+        {
+            playerIsInside = true; // Player is touching the crosshair
+        }
+        if (other.gameObject.CompareTag("ball"))
+        {
+            Rigidbody rb = other.GetComponent<Rigidbody>();
+            rb.velocity = Vector3.zero;
+            cameraShake.Shake(shakeDuration, shakeMagnitude);
+
+            // If the player is NOT inside, count this as a miss
+            if (!playerIsInside)
+            {
+                soundManager.PlayPumpSound();
+                Debug.Log("Missed ball");
+                // Stop the ball's movement
+                hb.LoseLife(); // Reduce life only if it’s a miss
+            }
+            else
+            {
+                soundManager.PlayClinkSound();
+                Debug.Log("Player caught the ball, not a miss!");
+            }
+        } 
     }
-}
+    void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject.CompareTag("Player"))
+        {
+            playerIsInside = false; // Player has left the crosshair
+        }
+    }
 
 }

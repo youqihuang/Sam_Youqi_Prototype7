@@ -7,6 +7,9 @@ public class SoundManager : MonoBehaviour
     public AudioClip whooshSound;  // Sound to play when the ball is instantiated
     public AudioClip pumpSound;     // Sound to play when the ball hits the crosshair
     public AudioClip tickingSound;
+    public AudioClip winSound;
+    public AudioClip loseSound;
+    public AudioClip clinkSound;
     private AudioSource audioSource; // Reference to the AudioSource component
 
     void Start()
@@ -28,6 +31,21 @@ public class SoundManager : MonoBehaviour
     public void PlayTickingSound()
     {
         audioSource.PlayOneShot(tickingSound);
+    }
+
+    public void PlayWinSound()
+    {
+        audioSource.PlayOneShot(winSound);
+    }
+
+    public void PlayLoseSound()
+    {
+        audioSource.PlayOneShot(loseSound);
+    }
+
+    public void PlayClinkSound()
+    {
+        audioSource.PlayOneShot(clinkSound);
     }
 
     public void StopTickingSound(float fadeDuration = 1f)
